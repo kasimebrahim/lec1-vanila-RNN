@@ -42,7 +42,7 @@ class Dataset:
         tot_data = pos_data + neg_data
         labels = [1] * len(pos_data) + [0] * len(neg_data)
 
-        print(len(labels), len(tot_data))
+        # print(len(labels), len(tot_data))
 
         return tot_data, labels
 

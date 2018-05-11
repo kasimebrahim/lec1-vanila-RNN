@@ -1,4 +1,5 @@
 from easydict import EasyDict as Dict
+from functions import softmax
 import numpy as np
 
 
@@ -14,8 +15,40 @@ class Network:
         self.w_second = np.random.normal(-1, 1, (self.output_size, self.hidden_size))
         self.w_reverse = np.random.normal(-1, 1, (self.hidden_size, self.hidden_size))
 
+    """
+    takes a list of indices of words in a sentence as an input and computes the forward
+    chain of the neural net. 
+    :return: tuple of states and outputs
+    """
+    def forward(self, input):
+        input_length = len(input)
+        # stores each state from initial to every state after an input is inserted
+        states = np.zeros((input_length+1, self.hidden_size, 1))
+        # stores output of the network after each input is computed
+        outputs = np.zeros((input_length, self.input_size, 1))
+
+        for time_t in range(0, input_length):
+            prev_state = states[time_t]
+
+            current_input = np.zeros((self.input_size, 1))
+            current_input[input[time_t]] = 1;
+
+            current_state = np.tanh(self.w_first.dot(current_input)+self.w_reverse.dot(prev_state))
+
+            current_output = softmax(self.w_second.dot(current_state))
+
+            states[time_t+1] = current_state
+            outputs[time_t] = current_output
+
+        return states, outputs
+
+
 params = Dict({
-    "dimensions": [5000, 200, 5000]
+    "dimensions": [3, 2, 3]
 })
 network = Network(params)
 print(network.w_first.shape, network.w_second.shape, network.w_reverse.shape)
+
+state, output = network.forward([2, 0, 1])
+print(state, "\n --------")
+print(output)
