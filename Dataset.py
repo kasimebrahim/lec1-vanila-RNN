@@ -63,6 +63,10 @@ class Dataset:
 
     @lazy_property
     def vector_dataset(self):
+        """
+        builds vectorized data set and label
+        :return: tuple of dataset and label
+        """
         vectorized_data = []
         for sentence in self.labeled_dataset[0]:
             vectorized_data.append(self.sentence2vector(sentence))
@@ -96,7 +100,5 @@ dataset = Dataset("data/rt-polarity.pos", "data/rt-polarity.neg", 5000)
 for l,d in zip(dataset.labeled_dataset[1][:5],dataset.labeled_dataset[0][:5]):
     print(l,d)
 print(dataset.word_dictionary[1])
-print(dataset.word_dictionary[0]["the"])
-print(dataset.word2index("the"))
 for l,d in zip(dataset.vector_dataset[1][:5],dataset.vector_dataset[0][:5]):
     print(l,d)
