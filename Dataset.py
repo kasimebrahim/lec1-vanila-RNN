@@ -1,5 +1,6 @@
 import collections
 
+import copy
 from blinker._utilities import lazy_property
 
 
@@ -72,6 +73,21 @@ class Dataset:
             vectorized_data.append(self.sentence2vector(sentence))
         return vectorized_data, self.labeled_dataset[1]
 
+    @lazy_property
+    def language_model_dataset(self):
+        """
+        this property holds dataset for language models
+        the label of each input is the copy of the input shifted to the the left
+        sentence_start will be prepended to the input and sentence_end will be appended to the label
+        :return:tuple of inputs and labels
+        """
+        lmodel_data = copy.deepcopy(self.vector_dataset[0])
+        lmodel_label = copy.deepcopy(self.vector_dataset[0])
+        for tr_data, lb_data in zip(lmodel_data, lmodel_label):
+            tr_data.insert(0,self.word2index(self.sentence_begin))
+            lb_data.append(self.word2index(self.sentence_end))
+        return lmodel_data, lmodel_label
+
     def word2index(self, word):
         """
         takes a word and returns the numerical value assigned to the word
@@ -90,16 +106,24 @@ class Dataset:
         :param sentence_list: a list of words[sentence]
         :return: a list of numbers
         """
-        vector = [self.word2index(self.sentence_begin)]
+        vector = []
         for word in sentence_list.split(" "):
             vector.append(self.word2index(word))
-        vector.append(self.word2index(self.sentence_end))
         return vector
 
 
-dataset = Dataset("data/rt-polarity.pos", "data/rt-polarity.neg", 5000)
+dataset = Dataset("data/rt-polarity.pos", "data/rt-polarity.neg", 10000)
+
 for l,d in zip(dataset.labeled_dataset[1][:5],dataset.labeled_dataset[0][:5]):
     print(l,d)
+print("\n\n")
+
 print(dataset.word_dictionary[1])
 for l,d in zip(dataset.vector_dataset[1][:5],dataset.vector_dataset[0][:5]):
     print(l,d)
+print("\n\n")
+
+for d,l in zip(dataset.language_model_dataset[0][:5],dataset.language_model_dataset[1][:5]):
+    print(d)
+    print(l)
+    print("------------")
