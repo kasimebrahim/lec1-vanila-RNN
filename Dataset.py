@@ -10,13 +10,14 @@ class Dataset:
     def __init__(self, positive_dataset_path, negative_dataset_path, vocabulary_size=10000):
         self._positive_dataset_path = positive_dataset_path
         self._negative_dataset_path = negative_dataset_path
-        self._vocabulary_size=vocabulary_size
-        self.sentence_end="END"
-        self.sentence_begin="BEGIN"
+        self._vocabulary_size = vocabulary_size
+        self.sentence_end = "END"
+        self.sentence_begin = "BEGIN"
         self.rare_word = "RARE"
         self._sentences_list = []
         self._tokenized_sentence_list = []
         self._word_dictionary = {}
+        self._vector_dataset = []
 
     @lazy_property
     def labeled_dataset(self):
@@ -60,6 +61,13 @@ class Dataset:
             self._word_dictionary[entry[0]] = len(self._word_dictionary)
         return self._word_dictionary, count
 
+    @lazy_property
+    def vector_dataset(self):
+        vectorized_data = []
+        for sentence in self.labeled_dataset[0]:
+            vectorized_data.append(self.sentence2vector(sentence))
+        return vectorized_data, self.labeled_dataset[1]
+
     def word2index(self, word):
         """
         takes a word and returns the numerical value assigned to the word
@@ -68,7 +76,7 @@ class Dataset:
         :return index: assigned numerical value
         """
         if word in self.word_dictionary[0]:
-            return self.word_dictionary[0][word];
+            return self.word_dictionary[0][word]
         else:
             return self.word_dictionary[0][self.rare_word]
 
@@ -79,14 +87,16 @@ class Dataset:
         :return: a list of numbers
         """
         vector = []
-        for word in sentence_list:
+        for word in sentence_list.split(" "):
             vector.append(self.word2index(word))
         return vector
 
+
 dataset = Dataset("data/rt-polarity.pos", "data/rt-polarity.neg", 5000)
-# for l,d in zip(dataset.labeled_dataset[1][:5],dataset.labeled_dataset[0][:5]):
-#     print(l,d)
+for l,d in zip(dataset.labeled_dataset[1][:5],dataset.labeled_dataset[0][:5]):
+    print(l,d)
 print(dataset.word_dictionary[1])
-print(dataset.word_dictionary[0]["ready"])
+print(dataset.word_dictionary[0]["the"])
 print(dataset.word2index("the"))
-print(dataset.word2index("kasim"))
+for l,d in zip(dataset.vector_dataset[1][:5],dataset.vector_dataset[0][:5]):
+    print(l,d)
