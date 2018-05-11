@@ -90,9 +90,10 @@ class Dataset:
         :param sentence_list: a list of words[sentence]
         :return: a list of numbers
         """
-        vector = []
+        vector = [self.word2index(self.sentence_begin)]
         for word in sentence_list.split(" "):
             vector.append(self.word2index(word))
+        vector.append(self.word2index(self.sentence_end))
         return vector
 
 
