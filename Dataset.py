@@ -11,6 +11,9 @@ class Dataset:
         self._positive_dataset_path = positive_dataset_path
         self._negative_dataset_path = negative_dataset_path
         self._vocabulary_size=vocabulary_size
+        self.sentence_end="END"
+        self.sentence_begin="BEGIN"
+        self.rare_word = "RARE"
         self._sentences_list = []
         self._tokenized_sentence_list = []
         self._word_dictionary = {}
@@ -50,16 +53,23 @@ class Dataset:
         """
         words = [w for line in self.labeled_dataset[0] for w in line.split()]
 
-        count = [["RARE", -1], ["BEGIN", -2], ["END", -3]]
+        count = [[self.rare_word, -1], [self.sentence_begin, -2], [self.sentence_end, -3]]
         count.extend(collections.Counter(words).most_common(self._vocabulary_size - 1))
 
         for entry in count:
             self._word_dictionary[entry[0]] = len(self._word_dictionary)
         return self._word_dictionary, count
 
+    def word2index(self, word):
+        if word in self.word_dictionary[0]:
+            return self.word_dictionary[0][word];
+        else:
+            return self.word_dictionary[0][self.rare_word]
 
 dataset = Dataset("data/rt-polarity.pos", "data/rt-polarity.neg", 5000)
 # for l,d in zip(dataset.labeled_dataset[1][:5],dataset.labeled_dataset[0][:5]):
 #     print(l,d)
 print(dataset.word_dictionary[1])
 print(dataset.word_dictionary[0]["ready"])
+print(dataset.word2index("the"))
+print(dataset.word2index("kasim"))
