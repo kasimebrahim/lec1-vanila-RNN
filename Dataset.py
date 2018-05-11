@@ -5,7 +5,7 @@ from blinker._utilities import lazy_property
 
 class Dataset:
     def __str__(self):
-        return "positive and negative sentimental sentences"
+        return "positive and negative sentimental dataset"
 
     def __init__(self, positive_dataset_path, negative_dataset_path, vocabulary_size=10000):
         self._positive_dataset_path = positive_dataset_path
@@ -47,7 +47,7 @@ class Dataset:
     @lazy_property
     def word_dictionary(self):
         """
-        assigns each word a numerical value
+        assigns each word[redundant enough to be in the vocabulary] a numerical value
         builds a dictionary of words and their assigned numerical value
         :return: tuple of dictionary and word frequency
         """
@@ -61,10 +61,27 @@ class Dataset:
         return self._word_dictionary, count
 
     def word2index(self, word):
+        """
+        takes a word and returns the numerical value assigned to the word
+        if the number doesn't exist in the word dictionary return 0[RARE WORD]
+        :param word:
+        :return index: assigned numerical value
+        """
         if word in self.word_dictionary[0]:
             return self.word_dictionary[0][word];
         else:
             return self.word_dictionary[0][self.rare_word]
+
+    def sentence2vector(self, sentence_list):
+        """
+        each word in the list will be converted to its numerical value
+        :param sentence_list: a list of words[sentence]
+        :return: a list of numbers
+        """
+        vector = []
+        for word in sentence_list:
+            vector.append(self.word2index(word))
+        return vector
 
 dataset = Dataset("data/rt-polarity.pos", "data/rt-polarity.neg", 5000)
 # for l,d in zip(dataset.labeled_dataset[1][:5],dataset.labeled_dataset[0][:5]):
