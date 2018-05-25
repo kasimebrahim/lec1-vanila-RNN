@@ -39,8 +39,13 @@ class Network:
 
             states[time_t+1] = current_state
             outputs[time_t] = current_output
+        # based on the calculated outputs we need to take the most probable output as prediction
+        predictions =  [np.argmax(o) for o in outputs]
 
-        return states, outputs
+        return states, outputs, predictions
+
+    def cost(self):
+        pass
 
 
 params = Dict({
@@ -49,6 +54,7 @@ params = Dict({
 network = Network(params)
 print(network.w_first.shape, network.w_second.shape, network.w_reverse.shape)
 
-state, output = network.forward([2, 0, 1])
+state, output, prediction = network.forward([2, 0, 1])
 print(state, "\n --------")
-print(output)
+print(output, "\n --------")
+print(prediction)
